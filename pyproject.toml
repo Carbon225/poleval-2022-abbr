@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "poleval-2022-abbr"
+version = "0.1.0"
+description = ""
+authors = ["Jakub Karbowski <carbon225@proton.me>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "~3.10"
+torch = "^2.0.0"
+transformers = "^4.28.1"
+datasets = "^2.11.0"
+evaluate = "^0.4.0"
+wandb = "^0.15.0"
+pandas = "^2.0.1"
+numpy = "^1.24.3"
+scipy = "^1.10.1"
+scikit-learn = "^1.2.2"
+mwparserfromhell = "0.6.4"
+multiprocess = "0.70.13"
+spacy = "^3.5.2"
+sentencepiece = "^0.1.98"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
