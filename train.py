@@ -6,6 +6,7 @@ os.environ["WANDB_WATCH"]="false"
 
 from dataclasses import dataclass, field
 import csv
+import datetime
 import multiprocessing as mp
 import numpy as np
 import torch
@@ -27,10 +28,15 @@ from mixed_dataset import MixedDataset
 NUM_PROC = mp.cpu_count()
 
 
+def make_run_name():
+    now = datetime.datetime.now()
+    return f'{now.year}-{now.month}-{now.day}-{now.hour}-{now.minute}-{now.second}'
+
+
 @dataclass
 class ModelArguments:
     checkpoint: str = field(default='allegro/plt5-base')
-    compile: bool = field(default=False)
+    compile: bool = field(default=True)
 
 
 @dataclass
@@ -43,12 +49,13 @@ class DataArguments:
 
 @dataclass
 class MyTrainingArguments(Seq2SeqTrainingArguments):
-    per_device_train_batch_size: int = field(default=4)
+    per_device_train_batch_size: int = field(default=64)
     per_device_eval_batch_size: int = field(default=64)
-    gradient_accumulation_steps: int = field(default=64)
+    gradient_accumulation_steps: int = field(default=4)
 
-    learning_rate: float = field(default=5e-4)
-    weight_decay: float = field(default=0.001)
+    # from JK final submission
+    learning_rate: float = field(default=0.000015)
+    weight_decay: float = field(default=0.0001)
     warmup_ratio: float = field(default=0.1)
 
     max_steps: int = field(default=20000)
@@ -68,12 +75,12 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
     greater_is_better: bool = field(default=True)
     load_best_model_at_end: bool = field(default=True)
 
-    output_dir: str = field(default='results')
+    output_dir: str = field(default=f'results/{make_run_name()}')
     report_to: str = field(default='wandb')
     optim: str = field(default='adamw_torch')
     predict_with_generate: bool = field(default=True)
     fp16: bool = field(default=False)
-    bf16: bool = field(default=False)
+    bf16: bool = field(default=True)
 
 
 def train():
