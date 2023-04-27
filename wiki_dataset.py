@@ -10,7 +10,7 @@ NUM_PROC = mp.cpu_count()
 VALID_TEXT = re.compile(r'(?: [a-zęóąśłżźćń]{5}[a-zęóąśłżźćń]*)+ ', re.IGNORECASE | re.UNICODE)
 WHITESPACE = re.compile(r'\s+')
 
-nlp = spacy.load('pl_core_news_sm')
+nlp = spacy.load('pl_core_news_lg')
 
 
 def abbr_first(t):
