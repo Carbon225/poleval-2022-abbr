@@ -1,3 +1,9 @@
+import os
+os.environ["WANDB_ENTITY"]="carbon-agh"
+os.environ["WANDB_PROJECT"]="poleval-2022-abbr"
+os.environ["WANDB_LOG_MODEL"]="true"
+os.environ["WANDB_WATCH"]="false"
+
 from dataclasses import dataclass, field
 import csv
 import multiprocessing as mp
