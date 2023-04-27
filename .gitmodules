@@ -1,3 +1,6 @@
 [submodule "2022-punctuation-prediction"]
 	path = 2022-punctuation-prediction
 	url = https://github.com/poleval/2022-punctuation-prediction.git
+[submodule "2022-abbreviation-disambiguation"]
+	path = 2022-abbreviation-disambiguation
+	url = https://github.com/poleval/2022-abbreviation-disambiguation.git
