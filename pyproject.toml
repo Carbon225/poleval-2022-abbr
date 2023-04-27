@@ -21,6 +21,7 @@ mwparserfromhell = "0.6.4"
 multiprocess = "0.70.13"
 spacy = "^3.5.2"
 sentencepiece = "^0.1.98"
+protobuf = "<3.21"
 
 
 [build-system]
