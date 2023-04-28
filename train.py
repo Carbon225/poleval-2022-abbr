@@ -10,6 +10,7 @@ import datetime
 import multiprocessing as mp
 import numpy as np
 import torch
+from torch.utils.data import ConcatDataset
 from transformers import (
     AutoTokenizer,
     AutoModelForSeq2SeqLM,
@@ -42,7 +43,12 @@ class ModelArguments:
 @dataclass
 class DataArguments:
     dataset: str = field(default='poleval')
-    test_split: str = field(default='dev-0')
+    # values:
+    #   - wiki
+    #   - poleval
+    #   - poleval-dev
+    #   - mixed
+
     wiki_mixed_weight: int = field(default=4)
     poleval_mixed_weight: int = field(default=1)
 
@@ -152,6 +158,12 @@ def train():
     if data_args.dataset == 'poleval':
         train_dataset = poleval_dataset['train']
 
+    if data_args.dataset == 'poleval-dev':
+        train_dataset = ConcatDataset([
+            poleval_dataset['train'],
+            poleval_dataset['dev-0'],
+        ])
+
     if data_args.dataset == 'wiki':
         train_dataset = wiki_dataset
 
@@ -163,7 +175,7 @@ def train():
         args=training_args,
         data_collator=collator,
         train_dataset=train_dataset,
-        eval_dataset=poleval_dataset[data_args.test_split],
+        eval_dataset=poleval_dataset['dev-0'],
         compute_metrics=compute_metrics,
         callbacks=[
             EarlyStoppingCallback(
@@ -181,7 +193,8 @@ def train():
     
     if training_args.do_eval:
         print('Evaluating')
-        trainer.evaluate()
+        for ds_name in ('dev-0', 'test-A', 'test-B'):
+            trainer.evaluate(poleval_dataset[ds_name], metric_key_prefix=f'eval_{ds_name}')
 
     if training_args.do_predict:
         print('Predicting')

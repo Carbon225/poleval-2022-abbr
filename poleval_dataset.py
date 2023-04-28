@@ -47,17 +47,8 @@ def load_poleval_dataset():
     df_dev = pd.concat([df_dev_in, df_dev_expected], axis=1)
     df_dev = df_dev.dropna()
 
-    df_test_a = pd.read_csv(os.path.join(root, 'test-A', 'in.tsv'),
-        sep='\t',
-        names=header_in,
-        quoting=3,
-    )
-
-    df_test_b = pd.read_csv(os.path.join(root, 'test-B', 'in.tsv'),
-        sep='\t',
-        names=header_in,
-        quoting=3,
-    )
+    df_test_a = pd.read_csv(os.path.join(root, '..', 'poleval-test', 'test-A.csv'))
+    df_test_b = pd.read_csv(os.path.join(root, '..', 'poleval-test', 'test-B.csv'))
 
     dataset = datasets.DatasetDict({
         'train': datasets.Dataset.from_pandas(df_train).shuffle(42),
