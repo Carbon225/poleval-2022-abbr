@@ -56,10 +56,9 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
     # from JK final submission
     learning_rate: float = field(default=0.000015)
     weight_decay: float = field(default=0.0001)
-    warmup_ratio: float = field(default=0.1)
-
-    max_steps: int = field(default=20000)
-    early_stopping_patience: int = field(default=20)
+    warmup_steps: float = field(default=800)
+    max_steps: int = field(default=10_000) # -1 to use num_train_epochs
+    early_stopping_patience: int = field(default=20) # -1 to disable
 
     save_strategy: str = field(default='steps')
     save_steps: int = field(default=50)
@@ -170,7 +169,7 @@ def train():
             EarlyStoppingCallback(
                 early_stopping_patience=training_args.early_stopping_patience,
             ),
-        ],
+        ] if training_args.early_stopping_patience > 0 else [],
     )
 
     if training_args.do_train:
