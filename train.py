@@ -36,7 +36,7 @@ def make_run_name():
 @dataclass
 class ModelArguments:
     checkpoint: str = field(default='allegro/plt5-base')
-    compile: bool = field(default=True)
+    compile: bool = field(default=False)
 
 
 @dataclass
@@ -80,7 +80,7 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
     optim: str = field(default='adamw_torch')
     predict_with_generate: bool = field(default=True)
     fp16: bool = field(default=False)
-    bf16: bool = field(default=True)
+    bf16: bool = field(default=False)
 
 
 def train():
