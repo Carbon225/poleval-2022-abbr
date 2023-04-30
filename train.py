@@ -59,22 +59,22 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
     per_device_eval_batch_size: int = field(default=64)
     gradient_accumulation_steps: int = field(default=4)
 
-    # from JK final submission
     learning_rate: float = field(default=0.000015)
     weight_decay: float = field(default=0.0001)
-    warmup_steps: float = field(default=800)
-    max_steps: int = field(default=10_000) # -1 to use num_train_epochs
-    early_stopping_patience: int = field(default=20) # -1 to disable
+    warmup_ratio: float = field(default=0.1)
+    num_train_epochs: int = field(default=200)
+    max_steps: int = field(default=-1) # -1 to use num_train_epochs
+    early_stopping_patience: int = field(default=-1) # -1 to disable
 
     save_strategy: str = field(default='steps')
-    save_steps: int = field(default=50)
+    save_steps: int = field(default=100)
     save_total_limit: int = field(default=5)
 
     logging_strategy: str = field(default='steps')
-    logging_steps: int = field(default=5)
+    logging_steps: int = field(default=10)
 
     evaluation_strategy: str = field(default='steps')
-    eval_steps: int = field(default=50)
+    eval_steps: int = field(default=100)
 
     metric_for_best_model: str = field(default='eval_aw')
     greater_is_better: bool = field(default=True)
@@ -186,14 +186,13 @@ def train():
 
     if training_args.do_train:
         print('Training')
-        try:
-            trainer.train()
-        except KeyboardInterrupt:
-            print('Interrupted')
-    
+        trainer.train()
+        trainer.save_model(os.path.join(training_args.output_dir, 'final'))
+
     if training_args.do_eval:
         print('Evaluating')
-        for ds_name in ('dev-0', 'test-A', 'test-B'):
+        trainer.evaluate()
+        for ds_name in ('test-A', 'test-B'):
             trainer.evaluate(poleval_dataset[ds_name], metric_key_prefix=f'eval_{ds_name}')
 
     if training_args.do_predict:
