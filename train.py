@@ -31,7 +31,7 @@ NUM_PROC = mp.cpu_count()
 
 def make_run_name():
     now = datetime.datetime.now()
-    return f'{now.year}-{now.month}-{now.day}-{now.hour}-{now.minute}-{now.second}'
+    return f'{now.year}-{now.month}-{now.day}-{now.hour}-{now.minute}-{now.second}-{os.environ["SLURM_JOB_ID"]}'
 
 
 @dataclass
