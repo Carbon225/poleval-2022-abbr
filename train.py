@@ -25,8 +25,7 @@ from datasets import load_from_disk
 from poleval_dataset import load_poleval_dataset
 from mixed_dataset import MixedDataset
 
-
-NUM_PROC = mp.cpu_count()
+NUM_PROC = min(mp.cpu_count(),16)
 
 
 def make_run_name():
@@ -87,6 +86,9 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
     fp16: bool = field(default=False)
     bf16: bool = field(default=False)
 
+    generation_max_length: int = field(default=100)
+    adafactor: bool = field(default=False)
+
 
 def train():
     parser = HfArgumentParser((MyTrainingArguments, ModelArguments, DataArguments))
@@ -104,6 +106,7 @@ def train():
     def compute_metrics(eval_pred):
         preds, labels = eval_pred
 
+        preds = np.where(preds != -100, preds, tokenizer.pad_token_id)
         decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
 
         labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
