@@ -95,7 +95,7 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
 
 def train():
     parser = HfArgumentParser((MyTrainingArguments, ModelArguments, DataArguments))
-    training_args, model_args, data_args = parser.parse_args_into_dataclasses()
+    training_args, model_args, data_args = parser.parse_args_into_dataclasses(args_file_flag='--from_file')
 
     print('Loading model')
     tokenizer = AutoTokenizer.from_pretrained(model_args.checkpoint)
