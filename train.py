@@ -10,7 +10,6 @@ import csv
 import datetime
 import multiprocessing as mp
 import numpy as np
-import torch
 from torch.utils.data import ConcatDataset
 from transformers import (
     AutoTokenizer,
@@ -31,13 +30,12 @@ NUM_PROC = min(mp.cpu_count(),16)
 
 def make_run_name():
     now = datetime.datetime.now()
-    return f'{now.year}-{now.month}-{now.day}-{now.hour}-{now.minute}-{now.second}-{os.environ["SLURM_JOB_ID"]}'
+    return f'{now.year}-{now.month}-{now.day}-{now.hour}-{now.minute}-{now.second}-{os.environ.get("SLURM_JOB_ID", "local")}'
 
 
 @dataclass
 class ModelArguments:
     checkpoint: str = field(default='allegro/plt5-base')
-    compile: bool = field(default=False)
 
 
 @dataclass
@@ -102,8 +100,6 @@ def train():
     print('Loading model')
     tokenizer = AutoTokenizer.from_pretrained(model_args.checkpoint)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_args.checkpoint)
-    if model_args.compile:
-        model = torch.compile(model)
 
     print('Loading metrics')
     exact_match = evaluate.load('exact_match')
