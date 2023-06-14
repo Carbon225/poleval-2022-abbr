@@ -1,4 +1,5 @@
 import os
+
 os.environ["WANDB_ENTITY"]="carbon-agh"
 os.environ["WANDB_PROJECT"]="poleval-2022-abbr"
 os.environ["WANDB_LOG_MODEL"]="false"
@@ -22,7 +23,7 @@ from transformers import (
 )
 import evaluate
 from datasets import load_from_disk
-from poleval_dataset import load_poleval_dataset
+from poleval_dataset import load_poleval_dataset, load_kw_dataset
 from mixed_dataset import MixedDataset
 
 NUM_PROC = min(mp.cpu_count(),16)
@@ -43,10 +44,13 @@ class ModelArguments:
 class DataArguments:
     dataset: str = field(default='poleval')
     # values:
-    #   - wiki
+    #   - mixed
     #   - poleval
     #   - poleval-dev
-    #   - mixed
+    #   - wiki
+    #   - kw
+    #   - poleval+kw
+    #   - poleval-dev+kw
 
     wiki_mixed_weight: int = field(default=4)
     poleval_mixed_weight: int = field(default=1)
@@ -89,6 +93,7 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
     generation_max_length: int = field(default=100)
     adafactor: bool = field(default=False)
 
+    seed: int = field(default=42)
 
 def train():
     parser = HfArgumentParser((MyTrainingArguments, ModelArguments, DataArguments))
@@ -135,6 +140,7 @@ def train():
     if data_args.dataset in ('wiki', 'mixed'):
         wiki_dataset = load_from_disk('wiki_dataset')
     poleval_dataset = load_poleval_dataset()
+    kw_dataset = load_kw_dataset('data/kw_uniq.tsv')
 
     print('Tokenizing')
     def tokenize(batch):
@@ -146,7 +152,8 @@ def train():
     if data_args.dataset in ('wiki', 'mixed'):
         wiki_dataset = wiki_dataset.map(tokenize, batched=True, num_proc=NUM_PROC, remove_columns=['text']).shuffle(seed=42)
     # DO NOT SHUFFLE TEST
-    poleval_dataset = poleval_dataset.map(tokenize, batched=True, num_proc=NUM_PROC, remove_columns=['text'])#.shuffle(seed=42)
+    poleval_dataset = poleval_dataset.map(tokenize, batched=True, num_proc=NUM_PROC, remove_columns=['text'])
+    kw_dataset = kw_dataset.map(tokenize, batched=True, num_proc=NUM_PROC, remove_columns=['text'])
 
     if data_args.dataset == 'mixed':
         train_dataset = MixedDataset(
@@ -157,18 +164,28 @@ def train():
                 data_args.poleval_mixed_weight,
             ],
         )
-
-    if data_args.dataset == 'poleval':
+    elif data_args.dataset == 'poleval':
         train_dataset = poleval_dataset['train']
-
-    if data_args.dataset == 'poleval-dev':
+    elif data_args.dataset == 'poleval-dev':
         train_dataset = ConcatDataset([
             poleval_dataset['train'],
             poleval_dataset['dev-0'],
         ])
-
-    if data_args.dataset == 'wiki':
+    elif data_args.dataset == 'wiki':
         train_dataset = wiki_dataset
+    elif data_args.dataset == 'kw':
+        train_dataset = kw_dataset
+    elif data_args.dataset == 'poleval+kw':
+        train_dataset = ConcatDataset([
+            kw_dataset,
+            poleval_dataset['train'],
+        ])
+    elif data_args.dataset == 'poleval-dev+kw':
+        train_dataset = ConcatDataset([
+            kw_dataset,
+            poleval_dataset['train'],
+            poleval_dataset['dev-0'],
+        ])
 
     collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 

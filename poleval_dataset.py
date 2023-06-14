@@ -3,13 +3,30 @@ import datasets
 import os
 import re
 
-
 IGNORED = re.compile(r'[^a-zA-Zęóąśłżźćń0-9.!?</>]+')
 
 
 def sanitize(text: str):
     text = IGNORED.sub(' ', text)
     return text.strip()
+
+
+def load_kw_dataset(path: str):
+    train_data = []
+    for line in open(path):
+        line = line.strip('\n')
+        input, output = line.split('\t')
+        input = input.replace('<abbrev>', '<mask>')
+        input = input.replace('</abbrev>', '</mask>')
+        output = output.replace(' <sep> ', '; ')
+        input = ' ' + input
+        output = ' ' + output
+        train_data.append([input, output])
+
+    train_df = pd.DataFrame(train_data)
+    train_df.columns = ["text", "labels"]
+    
+    return datasets.Dataset.from_pandas(train_df).shuffle(42)
 
 
 def load_poleval_dataset():
