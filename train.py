@@ -1,5 +1,4 @@
 import os
-import random
 
 os.environ["WANDB_ENTITY"]="carbon-agh"
 os.environ["WANDB_PROJECT"]="poleval-2022-abbr"
@@ -45,10 +44,13 @@ class ModelArguments:
 class DataArguments:
     dataset: str = field(default='poleval')
     # values:
-    #   - wiki
+    #   - mixed
     #   - poleval
     #   - poleval-dev
-    #   - mixed
+    #   - wiki
+    #   - kw
+    #   - poleval+kw
+    #   - poleval-dev+kw
 
     wiki_mixed_weight: int = field(default=4)
     poleval_mixed_weight: int = field(default=1)
@@ -96,10 +98,6 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
 def train():
     parser = HfArgumentParser((MyTrainingArguments, ModelArguments, DataArguments))
     training_args, model_args, data_args = parser.parse_args_into_dataclasses()
-
-    torch.manual_seed(training_args.seed)
-    random.seed(training_args.seed)
-    np.random.seed(training_args.seed)
 
     print('Loading model')
     tokenizer = AutoTokenizer.from_pretrained(model_args.checkpoint)
@@ -152,7 +150,7 @@ def train():
             return tokenizer(text=batch['text'])
 
     if data_args.dataset in ('wiki', 'mixed'):
-        wiki_dataset = wiki_dataset.map(tokenize, batched=True, num_proc=NUM_PROC, remove_columns=['text']).shuffle(seed=training_args.dataset_seed)
+        wiki_dataset = wiki_dataset.map(tokenize, batched=True, num_proc=NUM_PROC, remove_columns=['text']).shuffle(seed=42)
     # DO NOT SHUFFLE TEST
     poleval_dataset = poleval_dataset.map(tokenize, batched=True, num_proc=NUM_PROC, remove_columns=['text'])
     kw_dataset = kw_dataset.map(tokenize, batched=True, num_proc=NUM_PROC, remove_columns=['text'])
