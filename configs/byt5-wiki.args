@@ -1,0 +1,14 @@
+--checkpoint google/byt5-base
+--do_train
+--do_eval
+--dataset wiki
+--num_train_epochs 1
+--max_steps -1
+--warmup_steps 0
+--warmup_ratio 0.05
+--early_stopping_patience -1
+--learning_rate 0.00011573704700449
+--weight_decay 0.037481058123752256
+--per_device_train_batch_size 8
+--per_device_eval_batch_size 8
+--gradient_accumulation_steps 16
