@@ -1,4 +1,4 @@
---checkpoint=./models/wiki-4
+--checkpoint=./models/plt5-wiki
 --dataset=poleval-dev
 --do_eval=True
 --do_train=True
