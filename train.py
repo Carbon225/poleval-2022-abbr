@@ -216,7 +216,7 @@ def train():
         for ds_name in ('dev-0', 'test-A', 'test-B'):
             predictions = trainer.predict(poleval_dataset[ds_name])
             decoded_preds = tokenizer.batch_decode(predictions.predictions, skip_special_tokens=True)
-            with open(f'{ds_name}-preds.tsv', 'w') as f:
+            with open(os.path.join(training_args.output_dir, f'{ds_name}-preds.tsv'), 'w') as f:
                 writer = csv.writer(f, delimiter='\t')
                 for pred in decoded_preds:
                     split_pred = pred.split(';')
