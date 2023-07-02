@@ -2,6 +2,7 @@
 --dataset=poleval-dev
 --do_eval=True
 --do_train=True
+--do_predict=True
 --gradient_accumulation_steps=16
 --learning_rate=3.887213336590513e-05
 --num_train_epochs=258

@@ -1,6 +1,7 @@
 --checkpoint google/byt5-base
 --do_train
 --do_eval
+--do_predict
 --dataset wiki
 --num_train_epochs 1
 --max_steps -1
