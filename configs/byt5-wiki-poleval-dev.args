@@ -1,0 +1,10 @@
+--checkpoint=./models/byt5-wiki
+--dataset=poleval-dev
+--do_eval=True
+--do_train=True
+--gradient_accumulation_steps=16
+--learning_rate=3.887213336590513e-05
+--num_train_epochs=258
+--per_device_eval_batch_size=16
+--per_device_train_batch_size=16
+--weight_decay=0.09756947289296536
