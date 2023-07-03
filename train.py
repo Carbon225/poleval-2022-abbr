@@ -89,7 +89,6 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
     bf16: bool = field(default=False)
 
     generation_max_length: int = field(default=100)
-    adafactor: bool = field(default=False)
 
     seed: int = field(default=42)
 
@@ -214,8 +213,9 @@ def train():
     if training_args.do_predict:
         print('Predicting')
         for ds_name in ('dev-0', 'test-A', 'test-B'):
-            predictions = trainer.predict(poleval_dataset[ds_name])
-            decoded_preds = tokenizer.batch_decode(predictions.predictions, skip_special_tokens=True)
+            preds = trainer.predict(poleval_dataset[ds_name]).predictions
+            preds = np.where(preds != -100, preds, tokenizer.pad_token_id)
+            decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
             with open(os.path.join(training_args.output_dir, f'{ds_name}-preds.tsv'), 'w') as f:
                 writer = csv.writer(f, delimiter='\t')
                 for pred in decoded_preds:
