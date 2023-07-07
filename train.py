@@ -104,6 +104,12 @@ def train():
     print('Loading metrics')
     exact_match = evaluate.load('exact_match')
 
+    def fix_separator(a):
+        if len(a) == 4:
+            return ['; '.join(a[0:2]), '; '.join(a[2:4])]
+        else:
+            return a
+
     def compute_metrics(eval_pred):
         preds, labels = eval_pred
 
@@ -113,14 +119,10 @@ def train():
         labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-        split_preds = [pred.split(';') for pred in decoded_preds]
-        split_labels = [label.split(';') for label in decoded_labels]
+        split_preds = [fix_separator(pred.split(';')) for pred in decoded_preds]
+        split_labels = [fix_separator(label.split(';')) for label in decoded_labels]
 
         #FIXME: support ; in predictions, but much better change the separator
-        if len(split_labels) == 4:
-            split_labels = ['; '.join(split_labels[0:2]), '; '.join(split_labels[2:4])]
-        if len(split_preds) == 4:
-            split_preds = ['; '.join(split_preds[0:2]), '; '.join(split_preds[2:4])]
 
         full_preds = [pred[0].strip() for pred in split_preds]
         base_preds = [pred[1].strip() if len(pred) > 1 else '' for pred in split_preds]
