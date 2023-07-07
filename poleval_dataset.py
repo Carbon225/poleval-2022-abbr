@@ -5,6 +5,7 @@ import re
 
 IGNORED = re.compile(r'[^a-zA-Zęóąśłżźćń0-9.!?</>]+')
 
+SEPARATOR = '\t'
 
 def sanitize(text: str):
     text = IGNORED.sub(' ', text)
@@ -18,7 +19,7 @@ def load_kw_dataset(path: str):
         input, output = line.split('\t')
         input = input.replace('<abbrev>', '<mask>')
         input = input.replace('</abbrev>', '</mask>')
-        output = output.replace(' <sep> ', '; ')
+        output = output.replace(' <sep> ', SEPARATOR)
         input = ' ' + input
         output = ' ' + output
         train_data.append([input, output])
@@ -83,7 +84,7 @@ def load_poleval_dataset():
             return {
                 # 'text': ' ' + sanitize(example['Context'].replace('<mask>', f'<mask>{example["Abbrev"]}</mask>', 1)),
                 'text': ' ' + example['Context'].replace('<mask>', f'<mask>{example["Abbrev"]}</mask>', 1),
-                'labels': ' ' + example['FullForm'] + '; ' + example['BaseForm']
+                'labels': ' ' + example['FullForm'] + SEPARATOR + example['BaseForm']
             }
 
     dataset = dataset.map(f, batched=False)
