@@ -91,6 +91,7 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
     generation_max_length: int = field(default=100)
 
     seed: int = field(default=42)
+    lr_scheduler_type: str = field(default='linear')
 
 def train():
     parser = HfArgumentParser((MyTrainingArguments, ModelArguments, DataArguments))
@@ -114,6 +115,8 @@ def train():
 
         split_preds = [pred.split(';') for pred in decoded_preds]
         split_labels = [label.split(';') for label in decoded_labels]
+
+        #FIXME: support ; in predictions, but much better change the separator
 
         full_preds = [pred[0].strip() for pred in split_preds]
         base_preds = [pred[1].strip() if len(pred) > 1 else '' for pred in split_preds]
@@ -220,9 +223,14 @@ def train():
                 writer = csv.writer(f, delimiter='\t')
                 for pred in decoded_preds:
                     split_pred = pred.split(';')
-                    full_pred = split_pred[0].strip()
-                    base_pred = split_pred[1].strip() if len(split_pred) > 1 else ''
-                    writer.writerow((full_pred, base_pred))
+                    if len(split_pred) == 4:
+                        full_pred = '; '.join(split_pred[0:2]).strip()
+                        base_pred = '; '.join(split_pred[2:4]).strip()
+                        writer.writerow((full_pred, base_pred))
+                    else:
+                        full_pred = split_pred[0].strip()
+                        base_pred = split_pred[1].strip() if len(split_pred) > 1 else ''
+                        writer.writerow((full_pred, base_pred))
 
 
 if __name__ == '__main__':
