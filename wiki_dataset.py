@@ -4,7 +4,7 @@ from random import choice, randint
 import multiprocessing as mp
 import spacy
 
-from poleval_dataset import SEPARATOR
+from poleval_dataset import SEPARATOR_SPACE
 
 NUM_PROC = mp.cpu_count()
 
@@ -77,7 +77,7 @@ def transform_batch(examples):
             fragment_lemma = ' '.join([t.lemma_ for t in doc])
 
             out['text'].append(text_abbr)
-            out['labels'].append(' ' + fragment + SEPARATOR + fragment_lemma)
+            out['labels'].append(' ' + fragment + SEPARATOR_SPACE + fragment_lemma)
 
     return out
 
