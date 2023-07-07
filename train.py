@@ -117,6 +117,10 @@ def train():
         split_labels = [label.split(';') for label in decoded_labels]
 
         #FIXME: support ; in predictions, but much better change the separator
+        if len(split_labels) == 4:
+            split_labels = ['; '.join(split_labels[0:2]), '; '.join(split_labels[2:4])]
+        if len(split_preds) == 4:
+            split_preds = ['; '.join(split_preds[0:2]), '; '.join(split_preds[2:4])]
 
         full_preds = [pred[0].strip() for pred in split_preds]
         base_preds = [pred[1].strip() if len(pred) > 1 else '' for pred in split_preds]
