@@ -5,7 +5,7 @@ import re
 
 IGNORED = re.compile(r'[^a-zA-Zęóąśłżźćń0-9.!?</>]+')
 
-SEPARATOR = '#'
+SEPARATOR = ';'
 SEPARATOR_SPACE = SEPARATOR + ' '
 
 def sanitize(text: str):
