@@ -33,6 +33,26 @@ def make_run_name():
     return f'{now.year}-{now.month}-{now.day}-{now.hour}-{now.minute}-{now.second}-{os.environ.get("SLURM_JOB_ID", "local")}'
 
 
+def parse_model_output(text: str) -> tuple[str, str]:
+    splits = text.split(SEPARATOR)
+    if len(splits) == 1:
+        # assume both forms are the same
+        return splits[0].strip(), splits[0].strip()
+    elif len(splits) == 2:
+        # proper output
+        return splits[0].strip(), splits[1].strip()
+    elif len(splits) == 4:
+        # assume proper output with SEPARATOR in both forms
+        full = SEPARATOR.join(splits[:2]).strip()
+        base = SEPARATOR.join(splits[2:]).strip()
+        return full, base
+    else:
+        # assume first is full form, rest is base form with SEPARATOR
+        full = splits[0].strip()
+        base = SEPARATOR.join(splits[1:]).strip()
+        return full, base
+
+
 @dataclass
 class ModelArguments:
     checkpoint: str = field(default='allegro/plt5-base')
@@ -113,14 +133,13 @@ def train():
         labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-        split_preds = [pred.split(SEPARATOR) for pred in decoded_preds]
-        split_labels = [label.split(SEPARATOR) for label in decoded_labels]
+        parsed_preds = [parse_model_output(pred) for pred in decoded_preds]
+        full_preds = [pred[0] for pred in parsed_preds]
+        base_preds = [pred[1] for pred in parsed_preds]
 
-        full_preds = [pred[0].strip() for pred in split_preds]
-        base_preds = [pred[1].strip() if len(pred) > 1 else '' for pred in split_preds]
-
-        full_labels = [label[0].strip() for label in split_labels]
-        base_labels = [label[1].strip() for label in split_labels]
+        parsed_labels = [parse_model_output(label) for label in decoded_labels]
+        full_labels = [label[0] for label in parsed_labels]
+        base_labels = [label[1] for label in parsed_labels]
 
         af = exact_match.compute(predictions=full_preds, references=full_labels, ignore_case=True)['exact_match']
         ab = exact_match.compute(predictions=base_preds, references=base_labels, ignore_case=True)['exact_match']
@@ -220,10 +239,12 @@ def train():
             with open(os.path.join(training_args.output_dir, f'{ds_name}-preds.tsv'), 'w') as f:
                 writer = csv.writer(f, delimiter='\t')
                 for pred in decoded_preds:
-                    split_pred = pred.split(SEPARATOR)
-                    full_pred = split_pred[0].strip()
-                    base_pred = split_pred[1].strip() if len(split_pred) > 1 else ''
+                    full_pred, base_pred = parse_model_output(pred)
                     writer.writerow((full_pred, base_pred))
+            with open(os.path.join(training_args.output_dir, f'{ds_name}-raw.tsv'), 'w') as f:
+                writer = csv.writer(f, delimiter='\t')
+                for pred in decoded_preds:
+                    writer.writerow((pred,))
 
 
 if __name__ == '__main__':
