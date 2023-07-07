@@ -62,6 +62,7 @@ class MyTrainingArguments(Seq2SeqTrainingArguments):
 
     learning_rate: float = field(default=0.000015)
     weight_decay: float = field(default=0.0001)
+    lr_scheduler_type: str = field(default='linear')
     warmup_ratio: float = field(default=0.1)
     num_train_epochs: int = field(default=200)
     max_steps: int = field(default=-1) # -1 to use num_train_epochs
