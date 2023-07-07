@@ -105,6 +105,7 @@ def train():
     exact_match = evaluate.load('exact_match')
 
     def fix_separator(a):
+        a = [p.strip() for p in a]
         if len(a) == 4:
             return ['; '.join(a[0:2]), '; '.join(a[2:4])]
         else:
@@ -229,6 +230,8 @@ def train():
                 writer = csv.writer(f, delimiter='\t')
                 for pred in decoded_preds:
                     split_pred = pred.split(';')
+                    #strip
+                    split_pred= [p.strip() for p in split_pred]
                     if len(split_pred) == 4:
                         full_pred = '; '.join(split_pred[0:2]).strip()
                         base_pred = '; '.join(split_pred[2:4]).strip()
