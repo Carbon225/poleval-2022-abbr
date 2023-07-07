@@ -22,7 +22,7 @@ from transformers import (
 )
 import evaluate
 from datasets import load_from_disk
-from poleval_dataset import load_poleval_dataset, load_kw_dataset
+from poleval_dataset import load_poleval_dataset, load_kw_dataset, SEPARATOR
 from mixed_dataset import MixedDataset
 
 NUM_PROC = min(mp.cpu_count(),16)
@@ -112,8 +112,8 @@ def train():
         labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-        split_preds = [pred.split(';') for pred in decoded_preds]
-        split_labels = [label.split(';') for label in decoded_labels]
+        split_preds = [pred.split(SEPARATOR) for pred in decoded_preds]
+        split_labels = [label.split(SEPARATOR) for label in decoded_labels]
 
         full_preds = [pred[0].strip() for pred in split_preds]
         base_preds = [pred[1].strip() if len(pred) > 1 else '' for pred in split_preds]
@@ -219,7 +219,7 @@ def train():
             with open(os.path.join(training_args.output_dir, f'{ds_name}-preds.tsv'), 'w') as f:
                 writer = csv.writer(f, delimiter='\t')
                 for pred in decoded_preds:
-                    split_pred = pred.split(';')
+                    split_pred = pred.split(SEPARATOR)
                     full_pred = split_pred[0].strip()
                     base_pred = split_pred[1].strip() if len(split_pred) > 1 else ''
                     writer.writerow((full_pred, base_pred))
