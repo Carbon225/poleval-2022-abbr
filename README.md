@@ -18,6 +18,13 @@ The main `train.py` script can be used to train a model. The script takes a conf
 
 The `voting.py` script can be used to perform majority voting on a set of predictions.
 
+## Trained Models
+
+The best trained models are available on HuggingFace:
+
+* [plt5-wiki-train-dict](https://huggingface.co/carbon225/plt5-abbreviations-pl)
+* [byt5-wiki-train-dict](https://huggingface.co/carbon225/byt5-abbreviations-pl)
+
 ## Installation
 
 If using a custom virtualenv (not needed with a global Poetry installation):
