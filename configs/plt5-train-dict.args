@@ -1,0 +1,13 @@
+--checkpoint=allegro/plt5-base
+--dataset=poleval+kw
+--do_eval=True
+--do_train=True
+--gradient_accumulation_steps=4
+--learning_rate=0.00031833002027577777
+--num_train_epochs=45
+--optim=adafactor
+--per_device_eval_batch_size=64
+--per_device_train_batch_size=64
+--seed=0
+--weight_decay=0.006300693896173826
+--do_predict=True

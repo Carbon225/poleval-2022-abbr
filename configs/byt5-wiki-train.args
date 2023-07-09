@@ -2,10 +2,12 @@
 --dataset=poleval
 --do_eval=True
 --do_train=True
---do_predict=True
 --gradient_accumulation_steps=16
---learning_rate=3.887213336590513e-05
---num_train_epochs=258
+--learning_rate=0.0002188761302927011
+--num_train_epochs=35
+--optim=adafactor
 --per_device_eval_batch_size=16
 --per_device_train_batch_size=16
---weight_decay=0.09756947289296536
+--seed=0
+--weight_decay=0.03286814846793156
+--do_predict

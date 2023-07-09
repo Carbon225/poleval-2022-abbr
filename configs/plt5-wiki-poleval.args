@@ -1,8 +1,0 @@
---checkpoint=./models/plt5-wiki
---dataset=poleval
---do_eval=True
---do_train=True
---do_predict=True
---learning_rate=0.00018534074453142708
---num_train_epochs=281
---weight_decay=0.0203962973562284
